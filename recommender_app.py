@@ -71,14 +71,13 @@ st.markdown(
     """
 )
 
-# Create a text input field for the song name
 track_name = st.text_input("Enter a song name:")
+show_suggestions = st.button("Show Suggestions")
 
-# Fetch and display track suggestions as user types
-if track_name:
-    suggestions = get_track_suggestions(track_name)
-    selected_track = st.selectbox("Select a song from the suggestions:", suggestions)
-
+if show_suggestions:
+    if track_name:
+        suggestions = get_track_suggestions(track_name)
+        selected_track = st.selectbox("Select a song from the suggestions:", suggestions)
 
 # Numeric input for the number of tracks to add
 num_tracks_to_add = st.number_input("Number of tracks to add", min_value=1, max_value=50, value=10)
