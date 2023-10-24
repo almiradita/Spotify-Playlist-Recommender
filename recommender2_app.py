@@ -16,15 +16,6 @@ os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost/8080'
 # Initialize Spotipy with your authentication
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope="playlist-modify-public", open_browser=False))
 
-def get_track_suggestions(track_name, max_suggestions=5):
-    # Search for track suggestions
-    results = sp.search(q=track_name, type='track', limit=max_suggestions)
-
-    # Extract track names and artist names from suggestions
-    suggestions = [f"{track['name']} - {', '.join([artist['name'] for artist in track['artists']])}" for track in results['tracks']['items']]
-
-    return suggestions
-
 def get_track_uri(track_name):
     # Search for the track
     results = sp.search(q=track_name, type='track', limit=1)
@@ -70,12 +61,6 @@ st.markdown(
 )
 
 track_name = st.text_input("Enter a song name:")
-show_suggestions = st.button("Show Suggestions")
-
-if show_suggestions:
-    if track_name:
-        suggestions = get_track_suggestions(track_name)
-        selected_track = st.selectbox("Select a song from the suggestions:", suggestions)
 
 # Input field for the playlist name
 playlist_name = st.text_input("Enter a playlist name:", "Recommended Playlist")  # Default name
