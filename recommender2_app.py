@@ -14,6 +14,15 @@ os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost:8080'
 # Initialize Spotipy with your authentication
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope="playlist-modify-public", open_browser=False))
 
+def get_track_suggestions(track_name):
+    # Search for track suggestions
+    results = sp.search(q=track_name, type='track', limit=10)
+    
+    # Extract track names and artist names from suggestions
+    suggestions = [f"{track['name']} - {', '.join([artist['name'] for artist in track['artists']])}" for track in results['tracks']['items']]
+    
+    return suggestions
+
 # Streamlit app title and input fields
 st.title("SpotiMix: Your Playlist Maker")
 
