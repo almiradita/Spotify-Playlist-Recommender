@@ -1,8 +1,11 @@
-pip install -r requirements.txt
+import os
+# Install dependencies from requirements.txt
+os.system("pip install -r requirements.txt")
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import streamlit as st
-import os
+
 import pandas as pd
 
 
