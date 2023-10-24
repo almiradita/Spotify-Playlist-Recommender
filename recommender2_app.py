@@ -6,40 +6,13 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import streamlit as st
 
-import pandas as pd
-
 # Set your Spotify API credentials as environment variables
-os.environ["SPOTIPY_CLIENT_ID"] = 'f315c6bace724974b42a5b2477423a23'
-os.environ["SPOTIPY_CLIENT_SECRET"] = 'e6917aeeb4e946e1a0a5a372a6e51af9'
-os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost/8080'
+os.environ["SPOTIPY_CLIENT_ID"] = 'your_client_id'
+os.environ["SPOTIPY_CLIENT_SECRET"] = 'your_client_secret'
+os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost:8080'
 
 # Initialize Spotipy with your authentication
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope="playlist-modify-public", open_browser=False))
-
-def get_track_uri(track_name):
-    # Search for the track
-    results = sp.search(q=track_name, type='track', limit=1)
-
-    # Check if any tracks were found
-    if results['tracks']['total'] == 0:
-        print(f"No tracks found for '{track_name}'.")
-        return None
-
-    # Get the URI of the first track found
-    track_uri = results['tracks']['items'][0]['uri']
-    return track_uri
-
-def create_playlist(playlist_name):
-    user_id = sp.me()['id']
-    playlist = sp.user_playlist_create(user=user_id, name=playlist_name, public=True)
-    return playlist['id'], playlist
-
-def add_tracks_to_playlist(playlist_id, track_uris):
-    sp.playlist_add_items(playlist_id, track_uris)
-
-# Function to generate the Spotify link
-def generate_spotify_link(playlist_id, access_token):
-    return f"https://open.spotify.com/playlist/{playlist_id}?si={access_token}"
 
 # Streamlit app title and input fields
 st.title("SpotiMix: Your Playlist Maker")
@@ -48,7 +21,7 @@ st.markdown(
     """
     Welcome to the Spotify Playlist Recommendation System! 🎵
 
-    This app is your gateway to creating personalized Spotify playlists
+    This app is your gateway to creating personalized Spotify playlists 
     based on your favorite songs. Whether you have a particular track in mind
     or are looking for recommendations, we've got you covered.
 
@@ -60,7 +33,16 @@ st.markdown(
     """
 )
 
+# Create a text input field for the song name
 track_name = st.text_input("Enter a song name:")
+
+# Fetch and display track suggestions as the user types
+if track_name:
+    suggestions = get_track_suggestions(track_name)
+    selected_track = st.selectbox("Select a song from the suggestions:", suggestions)
+
+# Numeric input for the number of tracks to add
+num_tracks_to_add = st.number_input("Number of tracks to add", min_value=1, max_value=50, value=10)
 
 # Input field for the playlist name
 playlist_name = st.text_input("Enter a playlist name:", "Recommended Playlist")  # Default name
@@ -78,16 +60,10 @@ if st.button("Create Playlist") and track_name:
         # Extract track URIs from recommendations
         track_uris = [track['uri'] for track in recommendations]
 
+        # Limit the number of tracks to add based on user input
+        track_uris = track_uris[:num_tracks_to_add]
+
         # Add recommended tracks to the playlist
         add_tracks_to_playlist(playlist_id, track_uris)
 
-        # Generate Spotify link
-        access_token = sp.auth_manager.get_access_token()['access_token']
-        spotify_link = generate_spotify_link(playlist_id, access_token)
-
         st.success(f"Playlist '{playlist_name}' created with {len(track_uris)} recommended tracks.")
-        st.write("You can access your playlist here:")
-        st.markdown(f"[{playlist_name}]({spotify_link})")
-
-    else:
-        st.error(f"No tracks found for '{track_name}'.")
