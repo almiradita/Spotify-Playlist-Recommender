@@ -11,6 +11,20 @@ os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost:8080'
 # Initialize Spotipy with your authentication
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope="playlist-modify-public", open_browser=False))
 
+def get_artist_id(artist_name):
+    # Search for the artist
+    results = sp.search(q=artist_name, type='artist', limit=1)
+    
+    # Check if any artists were found
+    if results['artists']['total'] == 0:
+        print(f"No artist found for '{artist_name}'.")
+        return None
+    
+    # Get the ID of the first artist found
+    artist_id = results['artists']['items'][0]['id']
+    return artist_id
+
+
 # Streamlit app title and input fields
 st.title("SpotiMix: Your Playlist Maker")
 
